@@ -1,18 +1,18 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import Header from './components/Header.vue'
-import Footer from './components/Footer.vue'
+import { RouterView } from 'vue-router'
+import AppHeader from './components/Header.vue'
+import AppFooter from './components/Footer.vue'
 </script>
 
 <template>
-  <div class="min-h-screen flex w-full flex-col">
-    <Header />
+  <div class="min-h-screen flex flex-col">
+    <AppHeader />
 
-    <main class="flex-grow container mx-auo p-4">
+    <main class="flex-grow">
       <RouterView />
     </main>
 
-    <Footer />
+    <AppFooter />
   </div>
   <!-- <header>
     <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
