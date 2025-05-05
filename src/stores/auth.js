@@ -1,99 +1,146 @@
 import { defineStore } from 'pinia'
-import axios from 'axios'
+import { ref, computed } from 'vue'
 
-export const useAuthStore = defineStore('auth', {
-  state: () => ({
-    user: null,
-    token: localStorage.getItem('token') || null,
-    loading: false,
-    error: null,
-  }),
+export const useAuthStore = defineStore('auth', () => {
+  // State
+  const user = ref(null)
+  const token = ref(localStorage.getItem('token'))
+  const loading = ref(false)
+  const error = ref(null)
 
-  getters: {
-    isAuthenticated: (state) => !!state.token,
-    userAvatar: (state) => state.user?.avatar || '/avatars/default.png',
-    userPoints: (state) => state.user?.points || 0,
-  },
+  // Getters
+  const isAuthenticated = computed(() => !!token.value)
+  const isAdmin = computed(() => user.value?.role === 'admin')
+  const userLevels = computed(() => ({
+    html: user.value?.html_level || 'beginner',
+    css: user.value?.css_level || 'beginner',
+    python: user.value?.python_level || 'beginner',
+  }))
+  const totalPoints = computed(() => user.value?.total_points || 0)
 
-  actions: {
-    async login(credentials) {
-      this.loading = true
-      this.error = null
-      try {
-        const response = await axios.post('/api/auth/login', credentials)
-        this.token = response.data.token
-        this.user = response.data.user
-        localStorage.setItem('token', this.token)
-        return true
-      } catch (error) {
-        this.error = error.response?.data?.message || 'Login failed'
-        return false
-      } finally {
-        this.loading = false
+  // Actions
+  const setToken = (newToken) => {
+    token.value = newToken
+    if (newToken) {
+      localStorage.setItem('token', newToken)
+    } else {
+      localStorage.removeItem('token')
+    }
+  }
+
+  const setUser = (userData) => {
+    user.value = userData
+  }
+
+  const login = async (credentials) => {
+    loading.value = true
+    error.value = null
+    try {
+      // TODO: Implement actual API call
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
+      })
+
+      if (!response.ok) {
+        throw new Error('Login failed')
       }
-    },
 
-    async register(userData) {
-      this.loading = true
-      this.error = null
-      try {
-        const response = await axios.post('/api/auth/register', userData)
-        this.token = response.data.token
-        this.user = response.data.user
-        localStorage.setItem('token', this.token)
-        return true
-      } catch (error) {
-        this.error = error.response?.data?.message || 'Registration failed'
-        return false
-      } finally {
-        this.loading = false
+      const data = await response.json()
+      setToken(data.token)
+      setUser(data.user)
+      return true
+    } catch (err) {
+      error.value = err.message
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const register = async (userData) => {
+    loading.value = true
+    error.value = null
+    try {
+      // TODO: Implement actual API call
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      })
+
+      if (!response.ok) {
+        throw new Error('Registration failed')
       }
-    },
 
-    async logout() {
-      this.loading = true
-      try {
-        await axios.post('/api/auth/logout')
-      } catch (error) {
-        console.error('Logout error:', error)
-      } finally {
-        this.token = null
-        this.user = null
-        localStorage.removeItem('token')
-        this.loading = false
+      const data = await response.json()
+      setToken(data.token)
+      setUser(data.user)
+      return true
+    } catch (err) {
+      error.value = err.message
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const logout = () => {
+    setToken(null)
+    setUser(null)
+  }
+
+  const updateUserProgress = async (language, level, points) => {
+    if (!user.value) return
+
+    try {
+      // TODO: Implement actual API call
+      const response = await fetch('/api/user/progress', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token.value}`,
+        },
+        body: JSON.stringify({
+          language,
+          level,
+          points,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update progress')
       }
-    },
 
-    async fetchUser() {
-      if (!this.token) return
+      const data = await response.json()
+      setUser(data.user)
+    } catch (err) {
+      error.value = err.message
+    }
+  }
 
-      this.loading = true
-      try {
-        const response = await axios.get('/api/user/profile')
-        this.user = response.data
-      } catch (error) {
-        console.error('Fetch user error:', error)
-        this.token = null
-        this.user = null
-        localStorage.removeItem('token')
-      } finally {
-        this.loading = false
-      }
-    },
+  return {
+    // State
+    user,
+    token,
+    loading,
+    error,
 
-    async updateProfile(userData) {
-      this.loading = true
-      this.error = null
-      try {
-        const response = await axios.put('/api/user/profile', userData)
-        this.user = response.data
-        return true
-      } catch (error) {
-        this.error = error.response?.data?.message || 'Profile update failed'
-        return false
-      } finally {
-        this.loading = false
-      }
-    },
-  },
+    // Getters
+    isAuthenticated,
+    isAdmin,
+    userLevels,
+    totalPoints,
+
+    // Actions
+    login,
+    register,
+    logout,
+    updateUserProgress,
+  }
 })

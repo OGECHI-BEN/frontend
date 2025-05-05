@@ -13,42 +13,70 @@ const router = createRouter({
       path: '/learn',
       name: 'learn',
       component: () => import('../views/LearnView.vue'),
-      meta: { requiresAuth: true },
     },
     {
       path: '/practice',
       name: 'practice',
       component: () => import('../views/PracticeView.vue'),
-      meta: { requiresAuth: true },
     },
     {
       path: '/login',
       name: 'login',
       component: () => import('../views/LoginView.vue'),
-      meta: { guest: true },
     },
     {
       path: '/signup',
       name: 'signup',
       component: () => import('../views/SignupView.vue'),
-      meta: { guest: true },
+    },
+    // Protected Content Routes
+    {
+      path: '/content/:language/:level',
+      name: 'content',
+      component: () => import('../views/content/ContentView.vue'),
+      meta: { requiresAuth: true },
+    },
+    // Protected Practice Routes
+    {
+      path: '/practice/:language/:level',
+      name: 'practice-level',
+      component: () => import('../views/practice/PracticeLevelView.vue'),
+      meta: { requiresAuth: true },
+    },
+    // Admin Routes
+    {
+      path: '/admin',
+      name: 'admin',
+      component: () => import('../views/admin/AdminView.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true },
+      children: [
+        {
+          path: 'quizzes',
+          name: 'quiz-manager',
+          component: () => import('../views/admin/QuizManager.vue'),
+        },
+      ],
     },
   ],
 })
 
-// Navigation guard
+// Navigation Guards
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
-  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
-  const isGuestOnly = to.matched.some((record) => record.meta.guest)
 
-  if (requiresAuth && !authStore.isAuthenticated) {
+  // Check if route requires authentication
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next({ name: 'login', query: { redirect: to.fullPath } })
-  } else if (isGuestOnly && authStore.isAuthenticated) {
-    next({ name: 'home' })
-  } else {
-    next()
+    return
   }
+
+  // Check if route requires admin access
+  if (to.meta.requiresAdmin && !authStore.isAdmin) {
+    next({ name: 'home' })
+    return
+  }
+
+  next()
 })
 
 export default router

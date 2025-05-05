@@ -3,7 +3,7 @@
     <div class="container mx-auto px-4">
       <div class="max-w-md mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
         <div class="p-8">
-          <h2 class="text-2xl font-bold text-center mb-8">Welcome Back!</h2>
+          <h2 class="text-2xl font-bold text-center mb-8 text-orange-dark">Welcome Back!</h2>
 
           <form @submit.prevent="handleSubmit" class="space-y-6">
             <!-- Email/Username Field -->

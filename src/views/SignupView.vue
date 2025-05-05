@@ -113,7 +113,7 @@
                 <a href="#" class="text-indigo-600 hover:text-indigo-500">Privacy Policy</a>
               </label>
             </div>
-            <img src="../assets/images/1.jpg" alt="" />
+            <!-- <img src="../assets/images/1.jpg" alt="" /> -->
 
             <!-- Error Message -->
             <div v-if="authStore.error" class="text-red-600 text-sm">
@@ -161,15 +161,21 @@ const form = reactive({
 })
 
 const avatars = [
-  { id: 1, url: '../assets/images/1.jpg' },
-  { id: 2, url: '/assets/images/2.avif' },
-  { id: 3, url: '/assets/images/3.jpg' },
-  { id: 4, url: '/assets/images/4.jpg' },
-  { id: 5, url: '/assets/images/5.jpg' },
-  { id: 6, url: '/avatars/avatar6.png' },
-  { id: 7, url: '/avatars/avatar7.png' },
-  { id: 8, url: '/avatars/avatar8.png' },
-  { id: 9, src: '../assets/images/1.jpg' },
+  { id: 1, url: '/src/assets/images/1.jpg' },
+  { id: 2, url: '/src/assets/images/2.jpg' },
+  { id: 2, url: '/src/assets/images/2.avif' },
+  { id: 3, url: '/src/assets/images/3.jpg' },
+  { id: 3, url: '/src/assets/images/3.avif' },
+  { id: 4, url: '/src/assets/images/4.avif' },
+  { id: 5, url: '/src/assets/images/5.jpg' },
+  { id: 6, url: '/src/assets/images/6.avif' },
+  { id: 7, url: '/src/assets/images/7.jpg' },
+  { id: 8, url: '/src/assets/images/8.avif' },
+  { id: 9, url: '/src/assets/images/9.jpg' },
+  { id: 9, url: '/src/assets/images/10.avif' },
+  { id: 9, url: '/src/assets/images/11.jpg' },
+  { id: 9, url: '/src/assets/images/12.avif' },
+  { id: 9, url: '/src/assets/images/13.avif' },
 ]
 
 const selectAvatar = (id) => {
