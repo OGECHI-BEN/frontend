@@ -25,8 +25,6 @@ export default {
         'gold-dark': '#7d5c37',
         'dark-lighter': '#36363a',
         'orange-light': '#f48149',
-        'gold-light': '#a68458',
-        'gold-dark': '#7d5c37',
         'blue-light': '#83abfc',
         'blue-dark': '#437ef9',
       },

@@ -13,11 +13,13 @@ const router = createRouter({
       path: '/learn',
       name: 'learn',
       component: () => import('../views/LearnView.vue'),
+      meta: { requiresAuth: false },
     },
     {
       path: '/practice',
       name: 'practice',
       component: () => import('../views/PracticeView.vue'),
+      meta: { requiresAuth: false },
     },
     {
       path: '/login',
