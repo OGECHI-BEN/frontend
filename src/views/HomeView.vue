@@ -40,7 +40,7 @@ import TheWelcome from '../components/TheWelcome.vue'
                 </svg>
               </div>
               <h3 class="text-xl font-semibold mb-2 text-dark">HTML Fundamentals</h3>
-              <p class="text-blue-dark mb-4">
+              <p class="text-dark mb-4">
                 Learn to structure web pages and create your first website
               </p>
               <div class="flex items-center text-sm text-gray-500 mb-4">
@@ -68,8 +68,8 @@ import TheWelcome from '../components/TheWelcome.vue'
                   />
                 </svg>
               </div>
-              <h3 class="text-xl font-semibold mb-2">CSS Styling</h3>
-              <p class="text-gray-600 mb-4">
+              <h3 class="text-xl font-semibold mb-2 text-dark">CSS Styling</h3>
+              <p class="text-dark mb-4">
                 Make your websites beautiful with colors, layouts, and animations
               </p>
               <div class="flex items-center text-sm text-gray-500 mb-4">
@@ -91,14 +91,28 @@ import TheWelcome from '../components/TheWelcome.vue'
           >
             <div class="p-6">
               <div class="w-16 h-16 bg-yellow-100 rounded-lg flex items-center justify-center mb-4">
-                <svg class="w-8 h-8 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
-                  <path
-                    d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.401.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.55.535 6.607 0 11.985-5.365 11.985-11.987C23.97 5.39 18.592.026 11.985.026L12.017 0z"
-                  />
+                <svg viewBox="0 0 24 24">
+                  <g>
+                    <!-- Python Logo - Two Intertwined Snakes -->
+                    <path
+                      d="M11.458,1.003c-5.072,0-4.757,2.197-4.757,2.197l0.006,2.275h4.839v0.683H4.317
+                      c0,0-3.317-0.375-3.317,4.854s2.902,5.034,2.902,5.034h1.73v-2.424c0,0-0.094-2.902,2.85-2.902
+                      s4.678,0,4.678,0s2.629,0.042,2.629-2.543s0-4.285,0-4.285S16.306,1.003,11.458,1.003z M8.723,2.586
+                      c0.48,0,0.87,0.39,0.87,0.87s-0.39,0.87-0.87,0.87s-0.87-0.39-0.87-0.87S8.243,2.586,8.723,2.586z"
+                      fill="#3776AB"
+                    />
+                    <path
+                      d="M12.542,22.997c5.072,0,4.757-2.197,4.757-2.197l-0.006-2.275h-4.839v-0.683h7.229
+                      c0,0,3.317,0.375,3.317-4.854s-2.902-5.034-2.902-5.034h-1.73v2.424c0,0,0.094,2.902-2.85,2.902
+                      s-4.678,0-4.678,0s-2.629-0.042-2.629,2.543s0,4.285,0,4.285S7.694,22.997,12.542,22.997z M15.277,21.414
+                      c-0.48,0-0.87-0.39-0.87-0.87s0.39-0.87,0.87-0.87s0.87,0.39,0.87,0.87S15.757,21.414,15.277,21.414z"
+                      fill="#FFD43B"
+                    />
+                  </g>
                 </svg>
               </div>
-              <h3 class="text-xl font-semibold mb-2">Python Programming</h3>
-              <p class="text-gray-600 mb-4">
+              <h3 class="text-xl font-semibold mb-2 text-dark">Python Programming</h3>
+              <p class="text-dark mb-4">
                 Create games, solve puzzles, and learn real programming concepts
               </p>
               <div class="flex items-center text-sm text-gray-500 mb-4">
