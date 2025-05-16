@@ -1,146 +1,109 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import axios from 'axios'
 
-export const useAuthStore = defineStore('auth', () => {
-  // State
-  const user = ref(null)
-  const token = ref(localStorage.getItem('token'))
-  const loading = ref(false)
-  const error = ref(null)
+export const useAuthStore = defineStore('auth', {
+  state: () => ({
+    user: null,
+    token: localStorage.getItem('token') || null,
+    userPoints: 0,
+    userAvatar: null,
+  }),
 
-  // Getters
-  const isAuthenticated = computed(() => !!token.value)
-  const isAdmin = computed(() => user.value?.role === 'admin')
-  const userLevels = computed(() => ({
-    html: user.value?.html_level || 'beginner',
-    css: user.value?.css_level || 'beginner',
-    python: user.value?.python_level || 'beginner',
-  }))
-  const totalPoints = computed(() => user.value?.total_points || 0)
+  getters: {
+    isAuthenticated: (state) => !!state.token,
+  },
 
-  // Actions
-  const setToken = (newToken) => {
-    token.value = newToken
-    if (newToken) {
-      localStorage.setItem('token', newToken)
-    } else {
+  actions: {
+    async login(credentials) {
+      try {
+        const response = await axios.post('/api/auth/login', credentials)
+        const { token, user } = response.data
+
+        this.token = token
+        this.user = user
+        this.userPoints = user.points || 0
+        this.userAvatar = user.avatar
+
+        // Store token in localStorage
+        localStorage.setItem('token', token)
+
+        // Set default authorization header
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+
+        return true
+      } catch (error) {
+        console.error('Login error:', error)
+        throw error
+      }
+    },
+
+    async register(userData) {
+      try {
+        const response = await axios.post('/api/auth/register', userData)
+        const { token, user } = response.data
+
+        this.token = token
+        this.user = user
+        this.userPoints = user.points || 0
+        this.userAvatar = user.avatar
+
+        // Store token in localStorage
+        localStorage.setItem('token', token)
+
+        // Set default authorization header
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+
+        return true
+      } catch (error) {
+        console.error('Registration error:', error)
+        throw error
+      }
+    },
+
+    async logout() {
+      try {
+        await axios.post('/api/auth/logout')
+      } catch (error) {
+        console.error('Logout error:', error)
+      } finally {
+        this.clearAuth()
+      }
+    },
+
+    async fetchUser() {
+      try {
+        const response = await axios.get('/api/auth/user')
+        const { user } = response.data
+
+        this.user = user
+        this.userPoints = user.points || 0
+        this.userAvatar = user.avatar
+
+        return user
+      } catch (error) {
+        console.error('Fetch user error:', error)
+        this.clearAuth()
+        throw error
+      }
+    },
+
+    clearAuth() {
+      this.user = null
+      this.token = null
+      this.userPoints = 0
+      this.userAvatar = null
       localStorage.removeItem('token')
-    }
-  }
+      delete axios.defaults.headers.common['Authorization']
+    },
 
-  const setUser = (userData) => {
-    user.value = userData
-  }
-
-  const login = async (credentials) => {
-    loading.value = true
-    error.value = null
-    try {
-      // TODO: Implement actual API call
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(credentials),
-      })
-
-      if (!response.ok) {
-        throw new Error('Login failed')
+    // Initialize auth state from localStorage
+    initializeAuth() {
+      const token = localStorage.getItem('token')
+      if (token) {
+        this.token = token
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+        this.fetchUser()
       }
-
-      const data = await response.json()
-      setToken(data.token)
-      setUser(data.user)
-      return true
-    } catch (err) {
-      error.value = err.message
-      return false
-    } finally {
-      loading.value = false
-    }
-  }
-
-  const register = async (userData) => {
-    loading.value = true
-    error.value = null
-    try {
-      // TODO: Implement actual API call
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
-      })
-
-      if (!response.ok) {
-        throw new Error('Registration failed')
-      }
-
-      const data = await response.json()
-      setToken(data.token)
-      setUser(data.user)
-      return true
-    } catch (err) {
-      error.value = err.message
-      return false
-    } finally {
-      loading.value = false
-    }
-  }
-
-  const logout = () => {
-    setToken(null)
-    setUser(null)
-  }
-
-  const updateUserProgress = async (language, level, points) => {
-    if (!user.value) return
-
-    try {
-      // TODO: Implement actual API call
-      const response = await fetch('/api/user/progress', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token.value}`,
-        },
-        body: JSON.stringify({
-          language,
-          level,
-          points,
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to update progress')
-      }
-
-      const data = await response.json()
-      setUser(data.user)
-    } catch (err) {
-      error.value = err.message
-    }
-  }
-
-  return {
-    // State
-    user,
-    token,
-    loading,
-    error,
-
-    // Getters
-    isAuthenticated,
-    isAdmin,
-    userLevels,
-    totalPoints,
-
-    // Actions
-    login,
-    register,
-    logout,
-    updateUserProgress,
-  }
+    },
+  },
 })

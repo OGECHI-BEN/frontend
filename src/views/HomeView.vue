@@ -142,7 +142,7 @@ import TheWelcome from '../components/TheWelcome.vue'
                 <span class="text-indigo-600 font-semibold">S</span>
               </div>
               <div class="ml-4">
-                <h4 class="font-semibold">Sarah, 12</h4>
+                <h4 class="font-semibold text-orange">Sarah, 12</h4>
                 <p class="text-gray-600">Python Path</p>
               </div>
             </div>
@@ -156,7 +156,7 @@ import TheWelcome from '../components/TheWelcome.vue'
                 <span class="text-indigo-600 font-semibold">M</span>
               </div>
               <div class="ml-4">
-                <h4 class="font-semibold">Mike, 10</h4>
+                <h4 class="font-semibold text-orange">Mike, 10</h4>
                 <p class="text-gray-600">HTML & CSS Path</p>
               </div>
             </div>
@@ -170,7 +170,7 @@ import TheWelcome from '../components/TheWelcome.vue'
                 <span class="text-indigo-600 font-semibold">E</span>
               </div>
               <div class="ml-4">
-                <h4 class="font-semibold">Emma, 11</h4>
+                <h4 class="font-semibold text-orange">Emma, 11</h4>
                 <p class="text-gray-600">All Paths</p>
               </div>
             </div>

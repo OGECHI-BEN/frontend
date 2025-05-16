@@ -1,90 +1,95 @@
 <template>
-  <div class="min-h-screen bg-gray-50 py-12">
-    <div class="container mx-auto px-4">
-      <div class="max-w-md mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
-        <div class="p-8">
-          <h2 class="text-2xl font-bold text-center mb-8 text-orange-dark">Welcome Back!</h2>
-
-          <form @submit.prevent="handleSubmit" class="space-y-6">
-            <!-- Email/Username Field -->
-            <div>
-              <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
-                Email or Username
-              </label>
-              <input
-                id="email"
-                v-model="form.email"
-                type="text"
-                required
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Enter your email or username"
-                :disabled="authStore.loading"
-              />
-            </div>
-
-            <!-- Password Field -->
-            <div>
-              <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
-                Password
-              </label>
-              <input
-                id="password"
-                v-model="form.password"
-                type="password"
-                required
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Enter your password"
-                :disabled="authStore.loading"
-              />
-            </div>
-
-            <!-- Error Message -->
-            <div v-if="authStore.error" class="text-red-600 text-sm">
-              {{ authStore.error }}
-            </div>
-
-            <!-- Remember Me & Forgot Password -->
-            <div class="flex items-center justify-between">
-              <div class="flex items-center">
-                <input
-                  id="remember"
-                  v-model="form.rememberMe"
-                  type="checkbox"
-                  class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                  :disabled="authStore.loading"
-                />
-                <label for="remember" class="ml-2 block text-sm text-gray-700"> Remember me </label>
-              </div>
-              <a href="#" class="text-sm text-indigo-600 hover:text-indigo-500">
-                Forgot password?
-              </a>
-            </div>
-
-            <!-- Submit Button -->
-            <button
-              type="submit"
-              class="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              :disabled="authStore.loading"
-            >
-              {{ authStore.loading ? 'Logging in...' : 'Log In' }}
-            </button>
-          </form>
-
-          <!-- Sign Up Link -->
-          <p class="mt-6 text-center text-sm text-gray-600">
-            Don't have an account?
-            <router-link to="/signup" class="text-indigo-600 hover:text-indigo-500 font-semibold">
-              Sign up
-            </router-link>
-          </p>
-        </div>
+  <div class="min-h-screen bg-dark flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-lg">
+      <div>
+        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          Sign in to your account
+        </h2>
+        <p class="mt-2 text-center text-sm text-gray-600">
+          Or
+          <router-link to="/signup" class="font-medium text-orange hover:text-gold">
+            create a new account
+          </router-link>
+        </p>
       </div>
+
+      <form class="mt-8 space-y-6" @submit.prevent="handleSubmit">
+        <div class="rounded-md shadow-sm space-y-4">
+          <!-- Email/Username -->
+          <div>
+            <label for="email" class="sr-only">Email or Username</label>
+            <input
+              id="email"
+              v-model="form.email"
+              name="email"
+              type="text"
+              required
+              class="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-orange focus:border-orange focus:z-10 sm:text-sm"
+              placeholder="Email or Username"
+            />
+            <span v-if="errors.email" class="text-red-500 text-sm">{{ errors.email }}</span>
+          </div>
+
+          <!-- Password -->
+          <div>
+            <label for="password" class="sr-only">Password</label>
+            <input
+              id="password"
+              v-model="form.password"
+              name="password"
+              type="password"
+              required
+              class="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-orange focus:border-orange focus:z-10 sm:text-sm"
+              placeholder="Password"
+            />
+            <span v-if="errors.password" class="text-red-500 text-sm">{{ errors.password }}</span>
+          </div>
+
+          <!-- Remember Me & Forgot Password -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              <input
+                id="remember_me"
+                v-model="form.remember"
+                name="remember_me"
+                type="checkbox"
+                class="h-4 w-4 text-orange focus:ring-orange border-gray-300 rounded"
+              />
+              <label for="remember_me" class="ml-2 block text-sm text-gray-900">
+                Remember me
+              </label>
+            </div>
+
+            <div class="text-sm">
+              <router-link to="/forgot-password" class="font-medium text-orange hover:text-gold">
+                Forgot your password?
+              </router-link>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error Message -->
+        <div v-if="error" class="text-red-500 text-sm text-center">
+          {{ error }}
+        </div>
+
+        <div>
+          <button
+            type="submit"
+            :disabled="loading"
+            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-orange hover:bg-gold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange"
+          >
+            <span v-if="loading">Signing in...</span>
+            <span v-else>Sign in</span>
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { ref, reactive } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 
@@ -95,19 +100,55 @@ const authStore = useAuthStore()
 const form = reactive({
   email: '',
   password: '',
-  rememberMe: false,
+  remember: false,
 })
 
-const handleSubmit = async () => {
-  const success = await authStore.login({
-    email: form.email,
-    password: form.password,
-    remember: form.rememberMe,
-  })
+const errors = reactive({
+  email: '',
+  password: '',
+})
 
-  if (success) {
-    const redirectPath = route.query.redirect || '/'
-    router.push(redirectPath)
+const loading = ref(false)
+const error = ref('')
+
+const validateForm = () => {
+  let isValid = true
+  errors.email = ''
+  errors.password = ''
+
+  if (!form.email) {
+    errors.email = 'Email or username is required'
+    isValid = false
+  }
+
+  if (!form.password) {
+    errors.password = 'Password is required'
+    isValid = false
+  }
+
+  return isValid
+}
+
+const handleSubmit = async () => {
+  if (!validateForm()) return
+
+  loading.value = true
+  error.value = ''
+
+  try {
+    const success = await authStore.login(form)
+    if (success) {
+      // Redirect to the originally requested page or default to home
+      const redirectPath = route.query.redirect || '/learn'
+      router.push(redirectPath)
+    } else {
+      error.value = 'Invalid email/username or password'
+    }
+  } catch (err) {
+    error.value = 'An error occurred. Please try again.'
+    console.error('Login failed:', err)
+  } finally {
+    loading.value = false
   }
 }
 </script>
