@@ -85,7 +85,7 @@
                 @click="selectAvatar(avatar)"
                 :class="[
                   'cursor-pointer rounded-full p-1 transition-all duration-200',
-                  form.avatar === avatar
+                  selectedAvatar === avatar
                     ? 'ring-2 ring-orange scale-110'
                     : 'hover:ring-2 hover:ring-gray-300',
                 ]"
@@ -129,8 +129,10 @@ const form = reactive({
   email: '',
   password: '',
   password_confirmation: '',
-  avatar: '',
+  avatar: null,
 })
+
+const selectedAvatar = ref('')
 
 const errors = reactive({
   username: '',
@@ -147,18 +149,16 @@ const avatars = [
   '1.jpg',
   '2.jpg',
   '3.jpg',
-  '4.avif',
   '5.jpg',
-  '6.avif',
   '7.jpg',
-  '8.avif',
-  '2.avif',
-  '3.avif',
-  '10.avif',
   '9.jpg',
   '11.jpg',
-  '12.avif',
-  '13.avif',
+  '12.jpg',
+  '13.jpg',
+  '14.jpg',
+  '15.jpg',
+  '16.jpg',
+  '18.jpg',
 ]
 
 // Function to get the full URL for an avatar
@@ -167,9 +167,25 @@ const getAvatarUrl = (avatar) => {
 }
 
 // Function to handle avatar selection
-const selectAvatar = (avatar) => {
-  form.avatar = avatar
-  errors.avatar = '' // Clear any previous avatar errors
+const selectAvatar = async (avatar) => {
+  try {
+    // Fetch the image file from the assets
+    const response = await fetch(getAvatarUrl(avatar))
+    const blob = await response.blob()
+
+    // Create a File object from the blob
+    const file = new File([blob], avatar, {
+      type: blob.type || 'image/jpeg', // fallback to jpeg if type is not detected
+    })
+
+    // Update the form with the File object
+    form.avatar = file
+    selectedAvatar.value = avatar
+    errors.avatar = '' // Clear any previous avatar errors
+  } catch (error) {
+    console.error('Error loading avatar:', error)
+    errors.avatar = 'Failed to load avatar image'
+  }
 }
 
 const validateForm = () => {
@@ -219,12 +235,37 @@ const handleSubmit = async () => {
 
   loading.value = true
   try {
-    const success = await authStore.register(form)
+    // Create FormData object
+    const formData = new FormData()
+    formData.append('username', form.username)
+    formData.append('email', form.email)
+    formData.append('password', form.password)
+    formData.append('password_confirmation', form.password_confirmation)
+
+    // Make sure we're sending the actual File object
+    if (form.avatar instanceof File) {
+      formData.append('avatar', form.avatar)
+    } else {
+      throw new Error('Invalid avatar file')
+    }
+
+    const success = await authStore.register(formData)
     if (success) {
       router.push('/learn')
     }
   } catch (error) {
     console.error('Registration failed:', error)
+    if (error.response?.data?.errors) {
+      console.log('Validation Errors:', error.response.data.errors)
+      // Update the errors object with validation errors from the server
+      Object.keys(error.response.data.errors).forEach((key) => {
+        if (Object.prototype.hasOwnProperty.call(errors, key)) {
+          errors[key] = error.response.data.errors[key][0]
+        }
+      })
+    } else {
+      console.log('Full Error Response:', error.response?.data)
+    }
   } finally {
     loading.value = false
   }

@@ -20,7 +20,12 @@
           <!-- User Menu -->
           <div v-if="authStore.isAuthenticated" class="flex items-center space-x-4">
             <div class="flex items-center space-x-2">
-              <img :src="authStore.userAvatar" alt="User avatar" class="w-8 h-8 rounded-full" />
+              <img
+                :src="authStore.userAvatar || '/default-avatar.jpg'"
+                alt="User avatar"
+                class="w-12 h-12 rounded-full object-cover"
+                @error="handleAvatarError"
+              />
               <span class="text-indigo-600 font-semibold">{{ authStore.userPoints }} XP</span>
             </div>
             <button @click="handleLogout" class="text-gold hover:text-orange">LOGOUT</button>
@@ -89,7 +94,11 @@
         <!-- Mobile User Menu -->
         <div v-if="authStore.isAuthenticated" class="pt-4 border-t">
           <div class="flex items-center space-x-2 mb-4">
-            <img :src="authStore.userAvatar" alt="User avatar" class="w-8 h-8 rounded-full" />
+            <img
+              :src="authStore.userAvatar"
+              alt="User avatar"
+              class="w-8 h-8 rounded-full object-cover"
+            />
             <span class="text-indigo-600 font-semibold">{{ authStore.userPoints }} XP</span>
           </div>
           <button

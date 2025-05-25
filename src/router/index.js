@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import LessonView from '../views/learn/LessonView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -14,6 +15,21 @@ const router = createRouter({
       name: 'learn',
       component: () => import('../views/LearnView.vue'),
       meta: { requiresAuth: false },
+    },
+    {
+      path: '/learn/:slug',
+      name: 'course-overview',
+      component: () => import('../views/learn/CourseOverviewView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/learn/:slug/lessons/:lessonId',
+      name: 'lesson',
+      component: LessonView,
+      meta: {
+        requiresAuth: true,
+        title: 'Lesson',
+      },
     },
     {
       path: '/practice',

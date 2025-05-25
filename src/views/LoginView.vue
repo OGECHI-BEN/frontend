@@ -17,7 +17,8 @@
         <div class="rounded-md shadow-sm space-y-4">
           <!-- Email/Username -->
           <div>
-            <label for="email" class="sr-only">Email or Username</label>
+            <label for="email" class="text-dark">Email </label>
+            <span class="sr-only">(required field, please enter a valid email address)</span>
             <input
               id="email"
               v-model="form.email"
@@ -32,7 +33,8 @@
 
           <!-- Password -->
           <div>
-            <label for="password" class="sr-only">Password</label>
+            <label for="password" class="text-dark">Password</label>
+            <span class="sr-only">(required field, please enter your password)</span>
             <input
               id="password"
               v-model="form.password"
@@ -60,11 +62,11 @@
               </label>
             </div>
 
-            <div class="text-sm">
+            <!-- <div class="text-sm">
               <router-link to="/forgot-password" class="font-medium text-orange hover:text-gold">
                 Forgot your password?
               </router-link>
-            </div>
+            </div> -->
           </div>
         </div>
 
@@ -136,17 +138,36 @@ const handleSubmit = async () => {
   error.value = ''
 
   try {
-    const success = await authStore.login(form)
+    console.log('Attempting login with:', { email: form.email, password: form.password })
+    const success = await authStore.login({
+      email: form.email,
+      password: form.password,
+      remember: form.remember,
+    })
     if (success) {
       // Redirect to the originally requested page or default to home
       const redirectPath = route.query.redirect || '/learn'
+      console.log('Redirecting to:', redirectPath)
+      // router.push(redirectPath)
       router.push(redirectPath)
     } else {
       error.value = 'Invalid email/username or password'
     }
   } catch (err) {
-    error.value = 'An error occurred. Please try again.'
     console.error('Login failed:', err)
+    if (err.response?.data?.errors) {
+      // Handle validation errors from the server
+      const serverErrors = err.response.data.errors
+      if (serverErrors.email) {
+        errors.email = serverErrors.email[0]
+      }
+      if (serverErrors.password) {
+        errors.password = serverErrors.password[0]
+      }
+      error.value = 'Please check your input and try again'
+    } else {
+      error.value = 'An error occurred. Please try again.'
+    }
   } finally {
     loading.value = false
   }
