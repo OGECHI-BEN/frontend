@@ -17,25 +17,52 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
-      path: '/learn/:slug',
-      name: 'course-overview',
-      component: () => import('../views/learn/CourseOverviewView.vue'),
+      path: '/learn/:level',
+      name: 'level',
+      component: () => import('../views/learn/LevelView.vue'),
       meta: { requiresAuth: true },
     },
     {
-      path: '/learn/:slug/lessons/:lessonId',
+      path: '/learn/:level/:lessonId',
       name: 'lesson',
       component: LessonView,
-      meta: {
-        requiresAuth: true,
-        title: 'Lesson',
-      },
+      meta: { requiresAuth: true },
     },
     {
       path: '/practice',
       name: 'practice',
       component: () => import('../views/PracticeView.vue'),
-      meta: { requiresAuth: false },
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/practice/:level',
+      name: 'practice-level',
+      component: () => import('../views/practice/PracticeLevelView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/quiz',
+      name: 'quiz',
+      component: () => import('../views/quiz/QuizView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/quiz/:level',
+      name: 'quiz-level',
+      component: () => import('../views/quiz/QuizLevelView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/projects',
+      name: 'projects',
+      component: () => import('../views/projects/ProjectsView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/leaderboard',
+      name: 'leaderboard',
+      component: () => import('../views/leaderboard/LeaderboardView.vue'),
+      meta: { requiresAuth: true },
     },
     {
       path: '/login',
@@ -52,13 +79,6 @@ const router = createRouter({
       path: '/content/:language/:level',
       name: 'content',
       component: () => import('../views/content/ContentView.vue'),
-      meta: { requiresAuth: true },
-    },
-    // Protected Practice Routes
-    {
-      path: '/practice/:language/:level',
-      name: 'practice-level',
-      component: () => import('../views/practice/PracticeLevelView.vue'),
       meta: { requiresAuth: true },
     },
     // Admin Routes
