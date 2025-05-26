@@ -14,7 +14,7 @@ const router = createRouter({
       path: '/learn',
       name: 'learn',
       component: () => import('../views/LearnView.vue'),
-      meta: { requiresAuth: false },
+      meta: { requiresAuth: true },
     },
     {
       path: '/learn/:slug',

@@ -249,22 +249,29 @@ const handleSubmit = async () => {
       throw new Error('Invalid avatar file')
     }
 
-    const success = await authStore.register(formData)
-    if (success) {
-      router.push('/learn')
-    }
+    // Call the register action from the auth store
+    await authStore.register(formData)
+
+    // Redirect to learn page on success
+    router.push('/learn')
   } catch (error) {
-    console.error('Registration failed:', error)
-    if (error.response?.data?.errors) {
-      console.log('Validation Errors:', error.response.data.errors)
-      // Update the errors object with validation errors from the server
-      Object.keys(error.response.data.errors).forEach((key) => {
-        if (Object.prototype.hasOwnProperty.call(errors, key)) {
-          errors[key] = error.response.data.errors[key][0]
-        }
-      })
+    console.error('Signup error:', error)
+    // Handle specific error cases
+    if (error.response) {
+      const { data } = error.response
+      if (data.errors) {
+        // Handle validation errors from the server
+        Object.keys(data.errors).forEach((key) => {
+          if (errors[key] !== undefined) {
+            errors[key] = data.errors[key][0]
+          }
+        })
+      } else if (data.message) {
+        // Handle general error message
+        alert(data.message)
+      }
     } else {
-      console.log('Full Error Response:', error.response?.data)
+      alert('An error occurred during signup. Please try again.')
     }
   } finally {
     loading.value = false
