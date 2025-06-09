@@ -5,8 +5,21 @@
       <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between">
           <div class="flex items-center">
+            <!-- <img
+              :src="
+                authStore.user
+                  ? import.meta.env.VITE_APP_API_ENDPOINT + '/avatars/' + authStore.user.avatar
+                  : '/default-avatar.png'
+              "
+              alt="User Avatar"
+              class="h-12 w-12 rounded-full border-2 border-orange"
+            /> -->
             <img
-              :src="authStore.userAvatar || '/default-avatar.png'"
+              :src="
+                authStore.user
+                  ? `${apiEndpoint}/avatars/${authStore.user.avatar}` // Use the exposed apiEndpoint
+                  : '/default-avatar.png'
+              "
               alt="User Avatar"
               class="h-12 w-12 rounded-full border-2 border-orange"
             />
@@ -255,6 +268,9 @@
 </template>
 
 <script setup>
+// Expose the API endpoint to the template
+const apiEndpoint = import.meta.env.VITE_APP_API_ENDPOINT
+
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
@@ -378,7 +394,13 @@ const canAccessLevel = (level) => {
 }
 
 const startLevel = (level) => {
-  router.push(`/learn/${selectedLanguage.value}/${level}`)
+  router.push({
+    name: 'learn-level',
+    params: {
+      language: selectedLanguage.value,
+      level: level,
+    },
+  })
 }
 
 // Computed properties

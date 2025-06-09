@@ -13,7 +13,6 @@
 
       <form class="mt-8 space-y-6" @submit.prevent="handleSubmit">
         <div class="rounded-md shadow-sm space-y-4">
-          <!-- Username -->
           <div>
             <label for="username" class="sr-only">Username</label>
             <input
@@ -28,7 +27,6 @@
             <span v-if="errors.username" class="text-red-500 text-sm">{{ errors.username }}</span>
           </div>
 
-          <!-- Email -->
           <div>
             <label for="email" class="sr-only">Email address</label>
             <input
@@ -43,7 +41,6 @@
             <span v-if="errors.email" class="text-red-500 text-sm">{{ errors.email }}</span>
           </div>
 
-          <!-- Password -->
           <div>
             <label for="password" class="sr-only">Password</label>
             <input
@@ -58,7 +55,6 @@
             <span v-if="errors.password" class="text-red-500 text-sm">{{ errors.password }}</span>
           </div>
 
-          <!-- Confirm Password -->
           <div>
             <label for="password_confirmation" class="sr-only">Confirm Password</label>
             <input
@@ -75,7 +71,6 @@
             }}</span>
           </div>
 
-          <!-- Avatar Selection -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Choose your avatar</label>
             <div class="grid grid-cols-4 gap-4">
@@ -129,10 +124,10 @@ const form = reactive({
   email: '',
   password: '',
   password_confirmation: '',
-  avatar: null,
+  avatar: null, // This will now store the avatar name string
 })
 
-const selectedAvatar = ref('')
+const selectedAvatar = ref('') // This will also store the avatar name string for display
 
 const errors = reactive({
   username: '',
@@ -167,25 +162,11 @@ const getAvatarUrl = (avatar) => {
 }
 
 // Function to handle avatar selection
-const selectAvatar = async (avatar) => {
-  try {
-    // Fetch the image file from the assets
-    const response = await fetch(getAvatarUrl(avatar))
-    const blob = await response.blob()
-
-    // Create a File object from the blob
-    const file = new File([blob], avatar, {
-      type: blob.type || 'image/jpeg', // fallback to jpeg if type is not detected
-    })
-
-    // Update the form with the File object
-    form.avatar = file
-    selectedAvatar.value = avatar
-    errors.avatar = '' // Clear any previous avatar errors
-  } catch (error) {
-    console.error('Error loading avatar:', error)
-    errors.avatar = 'Failed to load avatar image'
-  }
+const selectAvatar = (avatar) => {
+  // Directly set the avatar name in the form and selectedAvatar ref
+  form.avatar = avatar
+  selectedAvatar.value = avatar
+  errors.avatar = '' // Clear any previous avatar errors
 }
 
 const validateForm = () => {
@@ -242,12 +223,8 @@ const handleSubmit = async () => {
     formData.append('password', form.password)
     formData.append('password_confirmation', form.password_confirmation)
 
-    // Make sure we're sending the actual File object
-    if (form.avatar instanceof File) {
-      formData.append('avatar', form.avatar)
-    } else {
-      throw new Error('Invalid avatar file')
-    }
+    // Append only the avatar name (string)
+    formData.append('avatar', form.avatar)
 
     // Call the register action from the auth store
     await authStore.register(formData)

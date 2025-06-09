@@ -56,7 +56,7 @@
               :section="currentSection"
             />
             <div v-else class="text-center py-12">
-              <p class="text-gray-500">Select a section to start learning</p>
+              <p class="text-gray-500">Select a section to begin learning</p>
             </div>
           </div>
         </div>

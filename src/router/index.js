@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
-import LessonView from '../views/learn/LessonView.vue'
+import LessonView from '../views/content/LessonView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -17,14 +17,14 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
-      path: '/learn/:level',
-      name: 'level',
-      component: () => import('../views/learn/LevelView.vue'),
+      path: '/learn/:language/:level',
+      name: 'learn-level',
+      component: () => import('../views/content/LessonListView.vue'),
       meta: { requiresAuth: true },
     },
     {
-      path: '/learn/:level/:lessonId',
-      name: 'lesson',
+      path: '/learn/:language/:level/:lesson',
+      name: 'learn-lesson',
       component: LessonView,
       meta: { requiresAuth: true },
     },
@@ -73,13 +73,6 @@ const router = createRouter({
       path: '/signup',
       name: 'signup',
       component: () => import('../views/SignupView.vue'),
-    },
-    // Protected Content Routes
-    {
-      path: '/content/:language/:level',
-      name: 'content',
-      component: () => import('../views/content/ContentView.vue'),
-      meta: { requiresAuth: true },
     },
     // Admin Routes
     {

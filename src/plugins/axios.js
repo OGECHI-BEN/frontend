@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // Set base URL for all requests
-axios.defaults.baseURL = 'http://localhost:8000'
+axios.defaults.baseURL = 'http://localhost:8000/api'
 
 // Configure default headers and credentials
 axios.defaults.withCredentials = true
@@ -13,6 +13,11 @@ axios.interceptors.request.use(
   (config) => {
     // Log the request for debugging
     console.log('Making request to:', config.url, config)
+
+    // Don't set Content-Type for FormData requests
+    if (!(config.data instanceof FormData)) {
+      config.headers['Content-Type'] = 'application/json'
+    }
 
     const token = localStorage.getItem('token')
     if (token) {

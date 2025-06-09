@@ -3,16 +3,11 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 
-class CourseResource extends BaseResource
+class CourseResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array
-     */
-    public function toArray($request)
+    public function toArray(Request $request): array
     {
         return [
             'id' => $this->id,
@@ -28,9 +23,7 @@ class CourseResource extends BaseResource
             'modules' => ModuleResource::collection($this->whenLoaded('modules')),
             'userProgress' => $this->whenLoaded('userProgress', function () {
                 return UserProgressResource::collection($this->userProgress);
-            }),
-            'createdAt' => $this->created_at,
-            'updatedAt' => $this->updated_at
+            })
         ];
     }
-} 
+}

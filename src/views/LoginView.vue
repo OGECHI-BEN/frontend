@@ -148,8 +148,7 @@ const handleSubmit = async () => {
       // Redirect to the originally requested page or default to home
       const redirectPath = route.query.redirect || '/learn'
       console.log('Redirecting to:', redirectPath)
-      // router.push(redirectPath)
-      router.push(redirectPath)
+      await router.push(redirectPath)
     } else {
       error.value = 'Invalid email/username or password'
     }

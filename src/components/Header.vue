@@ -20,11 +20,20 @@
           <!-- User Menu -->
           <div v-if="authStore.isAuthenticated" class="flex items-center space-x-4">
             <div class="flex items-center space-x-2">
-              <img
+              <!-- <img
                 :src="authStore.userAvatar || '/default-avatar.jpg'"
                 alt="User avatar"
                 class="w-12 h-12 rounded-full object-cover"
                 @error="handleAvatarError"
+              /> -->
+              <img
+                :src="
+                  authStore.user
+                    ? `${apiEndpoint}/avatars/${authStore.user.avatar}` // Use the exposed apiEndpoint
+                    : '/default-avatar.png'
+                "
+                alt="User Avatar"
+                class="h-12 w-12 rounded-full border-2 border-orange"
               />
               <span class="text-indigo-600 font-semibold">{{ authStore.userPoints }} XP</span>
             </div>
@@ -132,6 +141,9 @@
 </template>
 
 <script setup>
+// Expose the API endpoint to the template
+const apiEndpoint = import.meta.env.VITE_APP_API_ENDPOINT
+
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
