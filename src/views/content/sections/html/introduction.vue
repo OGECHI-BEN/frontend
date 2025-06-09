@@ -12,14 +12,33 @@
       >
         <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ level.name }}</h3>
         <p class="text-gray-600 mb-4">{{ level.description }}</p>
-        <div class="flex items-center justify-between">
-          <span class="text-sm text-gray-500">{{ level.lessons }} lessons</span>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-sm text-gray-500">{{ level.lessons.length }} lessons</span>
           <button
             class="px-4 py-2 bg-orange text-white rounded-lg hover:bg-orange-dark transition-colors"
             @click.stop="startLevel(level.id)"
           >
             Start Learning
           </button>
+        </div>
+        <!-- Lesson tags/titles as clickable links -->
+        <div v-if="level.lessons.length" class="flex flex-wrap gap-2 mt-2">
+          <router-link
+            v-for="lesson in level.lessons"
+            :key="lesson.id"
+            :to="{
+              name: 'learn-lesson', // CORRECTED ROUTE NAME
+              params: {
+                language: 'html',
+                level: level.id,
+                lesson: lesson.slug, // PASSING SLUG AS A ROUTE PARAMETER
+              },
+            }"
+            class="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded hover:bg-orange hover:text-white transition-colors"
+            @click.stop
+          >
+            {{ lesson.title }}
+          </router-link>
         </div>
       </div>
     </div>
@@ -46,24 +65,30 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useContentStore } from '@/stores/content'
+
+defineOptions({
+  name: 'HtmlIntroduction', // Linter warning fix
+})
 
 const router = useRouter()
+const contentStore = useContentStore()
 
 const levels = ref([
   {
     id: 'beginner',
     name: 'Beginner',
     description: 'Learn the basics of HTML, including elements, attributes, and basic structure.',
-    lessons: 5,
+    lessons: [],
     progress: 0,
   },
   {
     id: 'intermediate',
     name: 'Intermediate',
     description: 'Dive deeper into HTML5 features, forms, and semantic elements.',
-    lessons: 7,
+    lessons: [],
     progress: 0,
   },
   {
@@ -71,27 +96,42 @@ const levels = ref([
     name: 'Expert',
     description:
       'Master advanced HTML concepts, accessibility, and modern web development practices.',
-    lessons: 8,
+    lessons: [],
     progress: 0,
   },
 ])
 
+const fetchLessonsForAllLevels = async () => {
+  for (const level of levels.value) {
+    await contentStore.fetchLessons('html', level.id)
+    // Clone the lessons array to avoid reactivity issues
+    level.lessons = [...contentStore.lessons]
+    const completed = level.lessons.filter((l) => l.completed).length
+    level.progress = level.lessons.length ? Math.round((completed / level.lessons.length) * 100) : 0
+  }
+}
+
+onMounted(fetchLessonsForAllLevels)
+
 const selectLevel = (levelId) => {
-  // Navigate to the first lesson of the selected level
+  // When clicking on a level card itself, navigate to the lesson list view for that level
   router.push({
-    name: 'content',
+    name: 'learn-level', // Corrected route name
     params: {
       language: 'html',
       level: levelId,
-    },
-    query: {
-      section: 'lesson-1',
     },
   })
 }
 
 const startLevel = (levelId) => {
-  // Start the level and track progress
-  selectLevel(levelId)
+  // This button should also navigate to the lesson list view for that level
+  router.push({
+    name: 'learn-level', // Corrected route name
+    params: {
+      language: 'html',
+      level: levelId,
+    },
+  })
 }
 </script>

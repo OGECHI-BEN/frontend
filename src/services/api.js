@@ -1,7 +1,8 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_APP_API_ENDPOINT + '/api', //
+  baseURL: import.meta.env.VITE_APP_API_ENDPOINT, //
+  // baseURL: import.meta.env.VITE_APP_API_ENDPOINT + '/api', // This is the change felix helped me with to enable easy authentication
   // baseURL: 'http://localhost:8000/api',//
   headers: {
     Accept: 'application/json',

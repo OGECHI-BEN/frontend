@@ -18,13 +18,13 @@ const router = createRouter({
     },
     {
       path: '/learn/:language/:level',
-      name: 'learn-level',
+      name: 'learn-level', // This route is used by introduction.vue to go to a list of lessons
       component: () => import('../views/content/LessonListView.vue'),
       meta: { requiresAuth: true },
     },
     {
       path: '/learn/:language/:level/:lesson',
-      name: 'learn-lesson',
+      name: 'learn-lesson', // This route is used by introduction.vue to go to a specific lesson, AND by LessonView.vue itself for breadcrumbs
       component: LessonView,
       meta: { requiresAuth: true },
     },

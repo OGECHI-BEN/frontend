@@ -1,48 +1,8 @@
+<!-- src/views/LearnView.vue -->
 <template>
   <div class="min-h-screen bg-gray-900">
     <!-- Welcome Section -->
-    <div class="bg-gray-800 shadow-lg">
-      <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center">
-            <!-- <img
-              :src="
-                authStore.user
-                  ? import.meta.env.VITE_APP_API_ENDPOINT + '/avatars/' + authStore.user.avatar
-                  : '/default-avatar.png'
-              "
-              alt="User Avatar"
-              class="h-12 w-12 rounded-full border-2 border-orange"
-            /> -->
-            <img
-              :src="
-                authStore.user
-                  ? `${apiEndpoint}/avatars/${authStore.user.avatar}` // Use the exposed apiEndpoint
-                  : '/default-avatar.png'
-              "
-              alt="User Avatar"
-              class="h-12 w-12 rounded-full border-2 border-orange"
-            />
-            <div class="ml-4">
-              <h1 class="text-2xl font-bold text-white">
-                Welcome back, {{ authStore.user?.username }}!
-              </h1>
-              <p class="text-sm text-gray-400">Continue your learning journey</p>
-            </div>
-          </div>
-          <div class="flex items-center space-x-4">
-            <div class="text-center">
-              <span class="text-2xl font-bold text-orange">{{ authStore.userPoints }}</span>
-              <p class="text-sm text-gray-400">Points</p>
-            </div>
-            <div class="text-center">
-              <span class="text-2xl font-bold text-orange">{{ completedLessons }}</span>
-              <p class="text-sm text-gray-400">Lessons Completed</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- ... (your existing welcome section code) ... -->
 
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
@@ -280,6 +240,10 @@ const authStore = useAuthStore()
 const selectedLanguage = ref('html')
 
 // Lesson data for each language
+// IMPORTANT: This 'lessons' object is CURRENTLY hardcoded.
+// For LearnView.vue, this is the 'lessons' object that could be dynamically fetched
+// if you wanted to change how lessons are displayed on this summary page.
+// However, our current focus is on LessonView.vue.
 const lessons = {
   html: {
     beginner: [

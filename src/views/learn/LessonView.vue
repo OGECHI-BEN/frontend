@@ -1,147 +1,133 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
-    <div class="grid md:grid-cols-4 gap-8">
-      <!-- Main Content -->
-      <div class="md:col-span-3">
-        <!-- Lesson Header -->
-        <div class="bg-tertiary rounded-lg p-6 mb-6">
-          <div class="flex items-center justify-between mb-4">
-            <h1 class="text-3xl font-bold text-gold">{{ lesson?.title }}</h1>
-            <div class="flex items-center space-x-4">
-              <span class="text-primary">{{ lesson?.duration }} min</span>
-              <button
-                @click="markAsComplete"
-                class="bg-orange text-white px-4 py-2 rounded-lg hover:bg-gold transition-colors"
-                :disabled="isCompleted"
-              >
-                {{ isCompleted ? 'Completed' : 'Mark as Complete' }}
-              </button>
-            </div>
+  <div class="min-h-screen bg-dark">
+    <!-- Breadcrumb Navigation -->
+    <nav class="breadcrumb-nav">
+      <router-link :to="{ name: 'home' }" class="breadcrumb-item">Home</router-link>
+      <span class="breadcrumb-separator">/</span>
+      <router-link
+        :to="{ name: 'learn-level', params: { language, level } }"
+        class="breadcrumb-item"
+      >
+        {{ language }} - {{ level }}
+      </router-link>
+      <span class="breadcrumb-separator">/</span>
+      <span class="breadcrumb-item current">{{ lesson?.title }}</span>
+    </nav>
+
+    <!-- Lesson Header -->
+    <div class="bg-white shadow">
+      <div class="container mx-auto px-4 py-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900">{{ lesson?.title }}</h1>
+            <p class="mt-1 text-sm text-gray-500">
+              {{ lesson?.language?.name }} - {{ lesson?.level?.name }}
+            </p>
           </div>
-          <div class="prose prose-invert max-w-none">
-            <div v-html="lesson?.content"></div>
+          <div class="flex items-center space-x-4">
+            <!-- Display Estimated Time -->
+            <div class="text-sm text-dark">
+              Estimated time: {{ lesson?.estimated_time }} minutes
+            </div>
+            <button
+              v-if="!isCompleted"
+              @click="markAsComplete"
+              class="px-4 py-2 bg-orange text-white rounded-lg hover:bg-gold transition-colors"
+              :disabled="loading"
+            >
+              {{ loading ? 'Completing...' : 'Mark as Complete' }}
+            </button>
+            <div v-else class="text-green-500"><i class="fas fa-check-circle"></i> Completed</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+      <div v-if="loading" class="text-white text-center py-12">Loading lesson content...</div>
+      <div v-else-if="error" class="text-red-500 text-center py-12">Error: {{ error }}</div>
+      <div v-else-if="lesson">
+        <!-- Render Lesson Content Sections -->
+        <div class="prose max-w-none text-gray-200">
+          <div v-for="(section, index) in lesson.content.sections" :key="index" class="mb-6">
+            <h2 class="text-2xl font-bold text-white mb-2">{{ section.title }}</h2>
+            <div v-html="section.content"></div>
+            <pre
+              v-if="section.codeExample"
+              class="bg-gray-800 p-4 rounded-lg overflow-x-auto mt-4"
+            ><code class="language-html text-orange">{{ section.codeExample }}</code></pre>
+            <ul v-if="section.items" class="list-disc list-inside text-gray-400">
+              <li v-for="(item, itemIndex) in section.items" :key="itemIndex" class="mb-1">
+                <code>{{ item.code }}</code> - {{ item.description }}
+              </li>
+            </ul>
           </div>
         </div>
 
-        <!-- Code Editor Section -->
-        <div v-if="lesson?.exercises?.length" class="space-y-6">
+        <!-- Practice Exercises Section -->
+        <h2 class="text-2xl font-bold text-white mt-12 mb-4">Practice Exercises</h2>
+        <div v-if="lesson.exercises && lesson.exercises.length > 0">
           <div
-            v-for="(exercise, index) in lesson.exercises"
+            v-for="exercise in lesson.exercises"
             :key="exercise.id"
-            class="bg-tertiary rounded-lg p-6"
+            class="bg-gray-800 p-6 rounded-lg shadow-lg mb-4"
           >
-            <h2 class="text-xl font-bold text-gold mb-4">
-              Exercise {{ index + 1 }}: {{ exercise.title }}
-            </h2>
-            <p class="text-primary mb-4">{{ exercise.description }}</p>
+            <h3 class="text-xl font-semibold text-white mb-2">{{ exercise.title }}</h3>
+            <p class="text-gray-400 mb-4">{{ exercise.description }}</p>
+            <p class="text-sm text-gray-500">Points: {{ exercise.points }}</p>
+            <!-- Here you would integrate your CodeEditor.vue component -->
+            <!-- Example: <CodeEditor :starterCode="exercise.starter_code" :exerciseId="exercise.id" /> -->
+          </div>
+        </div>
+        <div v-else class="text-gray-400 py-4">No practice exercises for this lesson.</div>
 
-            <CodeEditor
-              v-model="exercise.code"
-              :language="getLanguageForCourse(courseSlug)"
-              :height="300"
-              class="mb-4"
-            />
-
-            <div class="flex justify-between items-center">
-              <div class="flex items-center space-x-4">
-                <button
-                  @click="runTests(exercise)"
-                  class="bg-orange text-white px-4 py-2 rounded-lg hover:bg-gold transition-colors"
-                  :disabled="isRunningTests"
-                >
-                  {{ isRunningTests ? 'Running Tests...' : 'Run Tests' }}
-                </button>
-                <button
-                  @click="resetExercise(exercise)"
-                  class="text-primary hover:text-orange transition-colors"
-                >
-                  Reset Code
-                </button>
-              </div>
-              <div class="text-primary">Points: {{ exercise.points }}</div>
-            </div>
-
-            <!-- Test Results -->
-            <div v-if="exercise.testResults" class="mt-4">
+        <!-- Quiz Questions Section -->
+        <h2 class="text-2xl font-bold text-white mt-12 mb-4">Quiz Questions</h2>
+        <div v-if="lesson.questions && lesson.questions.length > 0">
+          <div
+            v-for="question in lesson.questions"
+            :key="question.id"
+            class="bg-gray-800 p-6 rounded-lg shadow-lg mb-4"
+          >
+            <h3 class="text-xl font-semibold text-white mb-2">{{ question.question_text }}</h3>
+            <div v-if="question.type === 'multiple-choice'" class="space-y-2">
               <div
-                class="p-4 rounded-lg"
-                :class="exercise.testResults.passed ? 'bg-green-900' : 'bg-red-900'"
+                v-for="(option, index) in question.options"
+                :key="index"
+                class="flex items-center text-gray-300"
               >
-                <h3 class="text-lg font-semibold mb-2">
-                  {{ exercise.testResults.passed ? 'Tests Passed!' : 'Tests Failed' }}
-                </h3>
-                <div class="space-y-2">
-                  <div
-                    v-for="(result, index) in exercise.testResults.results"
-                    :key="index"
-                    class="flex items-center space-x-2"
-                  >
-                    <i
-                      :class="
-                        result.passed ? 'fas fa-check text-green-500' : 'fas fa-times text-red-500'
-                      "
-                    ></i>
-                    <span class="text-primary">{{ result.message }}</span>
-                  </div>
-                </div>
+                <input
+                  type="radio"
+                  :id="`option-${question.id}-${index}`"
+                  :name="`question-${question.id}`"
+                  disabled
+                  class="h-4 w-4 text-orange focus:ring-orange border-gray-600 rounded bg-gray-700"
+                />
+                <label :for="`option-${question.id}-${index}`" class="ml-2">{{ option }}</label>
               </div>
             </div>
+            <div v-else-if="question.type === 'code'" class="mt-4">
+              <p class="text-gray-400">Code question. (You would add a code input area here)</p>
+              <!-- Example: <textarea class="w-full h-32 bg-gray-700 text-white p-2 rounded-md" disabled>{{ question.correct_answer }}</textarea> -->
+            </div>
+            <p class="text-sm text-gray-500 mt-4">Points: {{ question.points }}</p>
           </div>
         </div>
-      </div>
+        <div v-else class="text-gray-400 py-4">No quiz questions for this lesson.</div>
 
-      <!-- Sidebar -->
-      <div class="space-y-6">
-        <!-- Progress -->
-        <div class="bg-tertiary rounded-lg p-6">
-          <h2 class="text-xl font-bold text-gold mb-4">Your Progress</h2>
-          <div class="space-y-4">
-            <div class="flex justify-between text-primary">
-              <span>Course Progress</span>
-              <span>{{ courseProgress }}%</span>
-            </div>
-            <div class="w-full bg-secondary rounded-full h-2">
-              <div
-                class="bg-orange h-2 rounded-full transition-all duration-300"
-                :style="{ width: `${courseProgress}%` }"
-              ></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Navigation -->
-        <div class="bg-tertiary rounded-lg p-6">
-          <h2 class="text-xl font-bold text-gold mb-4">Course Navigation</h2>
-          <div class="space-y-2">
-            <div v-for="module in course?.modules" :key="module.id" class="space-y-2">
-              <h3 class="text-lg font-semibold text-orange">{{ module.title }}</h3>
-              <div class="space-y-1">
-                <router-link
-                  v-for="lesson in module.lessons"
-                  :key="lesson.id"
-                  :to="`/learn/${courseSlug}/lessons/${lesson.id}`"
-                  class="block p-2 rounded-lg transition-colors"
-                  :class="{
-                    'bg-orange text-white': currentLessonId === lesson.id,
-                    'text-primary hover:bg-secondary': currentLessonId !== lesson.id,
-                  }"
-                >
-                  {{ lesson.title }}
-                </router-link>
-              </div>
-            </div>
-          </div>
-        </div>
+        <!-- Navigation Buttons (Next/Previous Lesson, if available in your LessonResource) -->
+        <!-- You can add navigation links here if your LessonResource returns `navigation` data -->
       </div>
+      <div v-else class="text-gray-400 text-center py-12">Lesson data could not be loaded.</div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import CodeEditor from '../../components/learn/CodeEditor.vue'
-import axios from 'axios'
+import { useContentStore } from '@/stores/content'
 
 defineOptions({
   name: 'LessonView',
@@ -149,147 +135,82 @@ defineOptions({
 
 const route = useRoute()
 const router = useRouter()
-const courseSlug = computed(() => route.params.slug)
-const currentLessonId = computed(() => parseInt(route.params.lessonId))
+const contentStore = useContentStore()
 
-const lesson = ref(null)
-const course = ref(null)
-const isRunningTests = ref(false)
+const language = computed(() => route.params.language)
+const level = computed(() => route.params.level)
+const lessonSlug = computed(() => route.params.lesson)
+
+const lesson = computed(() => contentStore.currentLesson)
+const loading = computed(() => contentStore.loading)
+const error = computed(() => contentStore.error)
+
 const isCompleted = ref(false)
 const courseProgress = ref(0)
+const isRunningTests = ref(false)
 
-// Mock data - Replace with API calls
-const mockLesson = {
-  id: 1,
-  title: 'Introduction to HTML',
-  content: `
-    <h2>What is HTML?</h2>
-    <p>HTML (HyperText Markup Language) is the standard markup language for creating web pages.</p>
-    <h3>Key Points:</h3>
-    <ul>
-      <li>HTML describes the structure of a web page</li>
-      <li>HTML consists of a series of elements</li>
-      <li>HTML elements tell the browser how to display the content</li>
-    </ul>
-  `,
-  duration: 15,
-  exercises: [
-    {
-      id: 1,
-      title: 'Create Your First HTML Page',
-      description: 'Create a basic HTML page with a title and a paragraph.',
-      code: `<!DOCTYPE html>
-<html>
-<head>
-  <title>My First Page</title>
-</head>
-<body>
-  <!-- Write your code here -->
-</body>
-</html>`,
-      points: 10,
-      testResults: null,
-    },
-  ],
+const fetchLessonData = async () => {
+  await contentStore.fetchLesson(language.value, level.value, lessonSlug.value)
 }
 
-const mockCourse = {
-  id: 1,
-  title: 'HTML Fundamentals',
-  modules: [
-    {
-      id: 1,
-      title: 'Introduction to HTML',
-      lessons: [
-        { id: 1, title: 'What is HTML?' },
-        { id: 2, title: 'Basic Document Structure' },
-        { id: 3, title: 'Your First HTML Page' },
-      ],
-    },
-  ],
-}
+onMounted(fetchLessonData)
 
-onMounted(async () => {
-  // Replace with actual API calls
-  lesson.value = mockLesson
-  course.value = mockCourse
-  courseProgress.value = 25
-})
-
-const getLanguageForCourse = (slug) => {
-  const languageMap = {
-    'html-fundamentals': 'html',
-    'css-mastery': 'css',
-    'python-programming': 'python',
-  }
-  return languageMap[slug] || 'javascript'
-}
-
-const runTests = async (exercise) => {
-  isRunningTests.value = true
-  try {
-    // Replace with actual API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    exercise.testResults = {
-      passed: true,
-      results: [
-        { passed: true, message: 'HTML structure is valid' },
-        { passed: true, message: 'Title is present' },
-        { passed: true, message: 'Body contains a paragraph' },
-      ],
-    }
-  } catch (error) {
-    console.error('Error running tests:', error)
-  } finally {
-    isRunningTests.value = false
-  }
-}
-
-const resetExercise = (exercise) => {
-  exercise.code = exercise.starterCode
-  exercise.testResults = null
-}
+watch(
+  () => [route.params.language, route.params.level, route.params.lesson],
+  () => {
+    fetchLessonData()
+  },
+)
 
 const markAsComplete = async () => {
-  if (isCompleted.value) return
-
-  try {
-    // Replace with actual API call
-    await new Promise((resolve) => setTimeout(resolve, 500))
+  if (lesson.value && !isCompleted.value) {
+    console.log(`Marking lesson "${lesson.value.title}" as complete!`)
     isCompleted.value = true
-    courseProgress.value += 5
-  } catch (error) {
-    console.error('Error marking lesson as complete:', error)
   }
+}
+
+const runTests = () => {
+  isRunningTests.value = true
+  setTimeout(() => {
+    isRunningTests.value = false
+  }, 2000)
+}
+
+const submitQuiz = () => {
+  console.log('Submitting quiz!')
 }
 </script>
 
-<style>
-.prose {
-  @apply text-primary;
+<style scoped>
+/* Add any specific styles for this component here */
+/* For breadcrumb, you might have global styles or define them here */
+.breadcrumb-nav {
+  @apply bg-gray-800 p-4 text-gray-400 text-sm flex items-center;
 }
-
-.prose h1,
+.breadcrumb-item {
+  @apply text-orange hover:text-gold;
+}
+.breadcrumb-separator {
+  @apply mx-2;
+}
+.breadcrumb-item.current {
+  @apply text-white;
+}
+/* Styles for the Prose content */
+..prose h1,
 .prose h2,
 .prose h3,
 .prose h4 {
-  @apply text-gold font-bold;
+  @apply text-white;
 }
-
-.prose p,
-.prose li {
-  @apply text-primary;
+.prose p {
+  @apply text-gray-300;
 }
-
-.prose a {
-  @apply text-orange hover:text-gold;
+.prose ul,
+.prose ol {
+  @apply text-gray-300;
 }
-
 .prose code {
-  @apply bg-secondary px-2 py-1 rounded;
-}
-
-.prose pre {
-  @apply bg-secondary p-4 rounded-lg overflow-x-auto;
+  @apply bg-gray-700 text-orange px-1 py-0.5 rounded;
 }
 </style>

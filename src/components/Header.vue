@@ -29,12 +29,21 @@
               <img
                 :src="
                   authStore.user
-                    ? `${apiEndpoint}/avatars/${authStore.user.avatar}` // Use the exposed apiEndpoint
+                    ? `${staticEndpoint}/avatars/${authStore.user.avatar}` // Use the exposed apiEndpoint
                     : '/default-avatar.png'
                 "
                 alt="User Avatar"
                 class="h-12 w-12 rounded-full border-2 border-orange"
               />
+              <!-- <img
+                :src="
+                  authStore.user
+                    ? `${apiEndpoint}/avatars/${authStore.user.avatar}` // Use the exposed apiEndpoint
+                    : '/default-avatar.png'
+                "
+                alt="User Avatar"
+                class="h-12 w-12 rounded-full border-2 border-orange"
+              /> -->
               <span class="text-indigo-600 font-semibold">{{ authStore.userPoints }} XP</span>
             </div>
             <button @click="handleLogout" class="text-gold hover:text-orange">LOGOUT</button>
@@ -142,7 +151,11 @@
 
 <script setup>
 // Expose the API endpoint to the template
+// Expose the API endpoint to the template (for other uses if needed)
 const apiEndpoint = import.meta.env.VITE_APP_API_ENDPOINT
+
+// Expose the STATIC endpoint to the template (for images/static files)
+const staticEndpoint = import.meta.env.VITE_APP_STATIC_ENDPOINT
 
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
