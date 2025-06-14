@@ -82,8 +82,27 @@
             <h3 class="text-xl font-semibold text-white mb-2">{{ exercise.title }}</h3>
             <p class="text-gray-400 mb-4">{{ exercise.description }}</p>
             <p class="text-sm text-gray-500">Points: {{ exercise.points }}</p>
-            <!-- Here you would integrate your CodeEditor.vue component -->
-            <!-- Example: <CodeEditor :starterCode="exercise.starter_code" :exerciseId="exercise.id" /> -->
+            <CodeEditor
+              :starterCode="exercise.starter_code"
+              :exerciseId="exercise.id"
+              @submit-code="submitExercise"
+              :ref="
+                (el) => {
+                  if (el) codeEditorRefs[exercise.id] = el
+                }
+              "
+            />
+            <!-- Display feedback for exercises -->
+            <div v-if="exerciseFeedback[exercise.id]" class="mt-2 text-sm">
+              <p
+                :class="{
+                  'text-green-500': exerciseFeedback[exercise.id].isCorrect,
+                  'text-red-500': !exerciseFeedback[exercise.id].isCorrect,
+                }"
+              >
+                {{ exerciseFeedback[exercise.id].message }}
+              </p>
+            </div>
           </div>
         </div>
         <div v-else class="text-gray-400 py-4">No practice exercises for this lesson.</div>
@@ -107,17 +126,44 @@
                   type="radio"
                   :id="`option-${question.id}-${index}`"
                   :name="`question-${question.id}`"
-                  disabled
+                  :value="option"
+                  v-model="userAnswers[question.id]"
                   class="h-4 w-4 text-orange focus:ring-orange border-gray-600 rounded bg-gray-700"
                 />
                 <label :for="`option-${question.id}-${index}`" class="ml-2">{{ option }}</label>
               </div>
+              <button
+                @click="submitQuestion(question.id)"
+                class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Submit Answer
+              </button>
             </div>
             <div v-else-if="question.type === 'code'" class="mt-4">
               <p class="text-gray-400">Code question. (You would add a code input area here)</p>
-              <!-- Example: <textarea class="w-full h-32 bg-gray-700 text-white p-2 rounded-md" disabled>{{ question.correct_answer }}</textarea> -->
+              <textarea
+                class="w-full h-32 bg-gray-700 text-white p-2 rounded-md"
+                v-model="userAnswers[question.id]"
+              ></textarea>
+              <button
+                @click="submitQuestion(question.id)"
+                class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Submit Code
+              </button>
             </div>
             <p class="text-sm text-gray-500 mt-4">Points: {{ question.points }}</p>
+            <!-- Display feedback -->
+            <div v-if="questionFeedback[question.id]" class="mt-2 text-sm">
+              <p
+                :class="{
+                  'text-green-500': questionFeedback[question.id].isCorrect,
+                  'text-red-500': !questionFeedback[question.id].isCorrect,
+                }"
+              >
+                {{ questionFeedback[question.id].message }}
+              </p>
+            </div>
           </div>
         </div>
         <div v-else class="text-gray-400 py-4">No quiz questions for this lesson.</div>
@@ -132,15 +178,16 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { useContentStore } from '@/stores/content'
+import axios from '@/plugins/axios' // Import axios for API calls
+import CodeEditor from '@/components/learning/CodeEditor.vue' // Import CodeEditor component
 
 defineOptions({
   name: 'LessonView',
 })
 
 const route = useRoute()
-const router = useRouter()
 const contentStore = useContentStore()
 
 const language = computed(() => route.params.language)
@@ -152,11 +199,20 @@ const loading = computed(() => contentStore.loading)
 const error = computed(() => contentStore.error)
 
 const isCompleted = ref(false)
-const courseProgress = ref(0)
-const isRunningTests = ref(false)
+
+const userAnswers = ref({}) // To store user's answers for questions
+const questionFeedback = ref({}) // To store feedback for submitted questions
+const exerciseFeedback = ref({}) // To store feedback for submitted exercises
+const codeEditorRefs = ref({}) // New ref to hold references to CodeEditor instances
 
 const fetchLessonData = async () => {
   await contentStore.fetchLesson(language.value, level.value, lessonSlug.value)
+  // Initialize userAnswers if lesson has questions
+  if (lesson.value && lesson.value.questions) {
+    lesson.value.questions.forEach((q) => {
+      userAnswers.value[q.id] = q.type === 'multiple-choice' ? '' : ''
+    })
+  }
 }
 
 onMounted(fetchLessonData)
@@ -175,16 +231,91 @@ const markAsComplete = async () => {
   }
 }
 
-const runTests = () => {
-  isRunningTests.value = true
-  setTimeout(() => {
-    isRunningTests.value = false
-  }, 2000)
+const submitQuestion = async (questionId) => {
+  if (!lesson.value) return
+
+  const answer = userAnswers.value[questionId]
+  if (!answer) {
+    questionFeedback.value[questionId] = {
+      isCorrect: false,
+      message: 'Please provide an answer.',
+    }
+    return
+  }
+
+  try {
+    const response = await axios.post(
+      `/content/lessons/${lesson.value.id}/questions/${questionId}`,
+      {
+        answer: answer,
+      },
+    )
+    const data = response.data
+    questionFeedback.value[questionId] = {
+      isCorrect: data.is_correct,
+      message: data.message || (data.is_correct ? 'Correct!' : 'Incorrect.'),
+    }
+    // Optionally, update user score or progress here if your backend returns it
+  } catch (err) {
+    console.error('Error submitting question:', err)
+    questionFeedback.value[questionId] = {
+      isCorrect: false,
+      message: 'Error submitting answer. Please try again.',
+    }
+  }
 }
 
-const submitQuiz = () => {
-  console.log('Submitting quiz!')
+const submitExercise = async ({ exerciseId, code }) => {
+  if (!lesson.value) return
+
+  try {
+    const response = await axios.post(
+      `/content/lessons/${lesson.value.id}/exercises/${exerciseId}`,
+      {
+        code: code,
+      },
+    )
+    const data = response.data
+
+    // Update local feedback state
+    exerciseFeedback.value[exerciseId] = {
+      isCorrect: data.is_correct,
+      message:
+        data.message ||
+        (data.is_correct
+          ? 'Exercise completed successfully!'
+          : 'Exercise failed. Please try again.'),
+    }
+
+    // Pass feedback directly to the CodeEditor component
+    if (codeEditorRefs.value[exerciseId]) {
+      codeEditorRefs.value[exerciseId].setFeedback(data.is_correct, data.message)
+    }
+  } catch (err) {
+    console.error('Error submitting exercise:', err)
+    exerciseFeedback.value[exerciseId] = {
+      isCorrect: false,
+      message: 'Error submitting exercise. Please try again.',
+    }
+    if (codeEditorRefs.value[exerciseId]) {
+      codeEditorRefs.value[exerciseId].setFeedback(
+        false,
+        'Error submitting exercise. Please try again.',
+      )
+    }
+  }
 }
+
+// const runTests = () => { // Marked as unused, keeping for potential future use or if user wants to implement it later
+//   isRunningTests.value = true
+//   setTimeout(() => {
+//     isRunningTests.value = false
+//   }, 2000)
+// }
+
+// const submitQuiz = () => {
+//   console.log('Submitting quiz!')
+// }
 </script>
 
 <style scoped>

@@ -43,24 +43,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Exercises
         Route::post('/exercises/{exerciseId}/submit', [ExerciseController::class, 'submit']);
-
-        // Learning API routes - Added under content prefix
-        Route::get('/languages', [LearningController::class, 'getLanguages'])->name('api.languages');
-        Route::get('/languages/{language}/lessons', [LearningController::class, 'getLessonsByLanguage'])->name('api.languages.lessons');
-        Route::get('/languages/{language}/lessons/{lesson}', [LearningController::class, 'getLesson'])->name('api.languages.lessons.show');
-
-        // Question and exercise submission routes
-        Route::post('/lessons/{lesson}/questions/{question}', [LearningController::class, 'submitAnswer'])->name('api.lessons.questions.submit');
-        Route::post('/lessons/{lesson}/exercises/{exercise}', [LearningController::class, 'submitExercise'])->name('api.lessons.exercises.submit');
-
-        // Quiz management routes
-        Route::get('/languages/{language}/quizzes', [LearningController::class, 'getQuizzesByLanguage'])->name('api.languages.quizzes');
-        Route::get('/languages/{language}/quizzes/{quiz}', [LearningController::class, 'getQuiz'])->name('api.languages.quizzes.show');
-        Route::post('/languages/{language}/quizzes/{quiz}/submit', [LearningController::class, 'submitQuiz'])->name('api.languages.quizzes.submit');
-
-        // Progress tracking routes
-        Route::get('/progress', [LearningController::class, 'getProgress'])->name('api.progress');
-        Route::post('/languages/{language}/lessons/{lesson}/complete', [LearningController::class, 'completeLesson'])->name('api.languages.lessons.complete');
     });
 
     // Quiz routes
@@ -91,5 +73,29 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('achievements')->group(function () {
         Route::get('/', [AchievementController::class, 'index']);
         Route::get('/{language}', [AchievementController::class, 'show']);
+    });
+
+    // Learning routes
+    Route::get('/learn', [LearningController::class, 'index'])->name('learning.index');
+
+    // Learning API routes
+    Route::prefix('api')->group(function () {
+        // Language and lesson routes
+        Route::get('/languages', [LearningController::class, 'getLanguages'])->name('api.languages');
+        Route::get('/languages/{language}/lessons', [LearningController::class, 'getLessonsByLanguage'])->name('api.languages.lessons');
+        Route::get('/languages/{language}/lessons/{lesson}', [LearningController::class, 'getLesson'])->name('api.languages.lessons.show');
+
+        // Question and exercise submission routes
+        Route::post('/lessons/{lesson}/questions/{question}', [LearningController::class, 'submitAnswer'])->name('api.lessons.questions.submit');
+        Route::post('/lessons/{lesson}/exercises/{exercise}', [LearningController::class, 'submitExercise'])->name('api.lessons.exercises.submit');
+
+        // Quiz management routes
+        Route::get('/languages/{language}/quizzes', [LearningController::class, 'getQuizzesByLanguage'])->name('api.languages.quizzes');
+        Route::get('/languages/{language}/quizzes/{quiz}', [LearningController::class, 'getQuiz'])->name('api.languages.quizzes.show');
+        Route::post('/languages/{language}/quizzes/{quiz}/submit', [LearningController::class, 'submitQuiz'])->name('api.languages.quizzes.submit');
+
+        // Progress tracking routes
+        Route::get('/progress', [LearningController::class, 'getProgress'])->name('api.progress');
+        Route::post('/languages/{language}/lessons/{lesson}/complete', [LearningController::class, 'completeLesson'])->name('api.languages.lessons.complete');
     });
 });

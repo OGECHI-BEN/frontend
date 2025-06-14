@@ -8,6 +8,7 @@ use App\Models\UserExerciseSubmission;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Exercise extends Model
 {
@@ -77,6 +78,16 @@ class Exercise extends Model
             ->orderBy('points_earned', 'desc')
             ->orderBy('created_at', 'desc')
             ->first();
+    }
+
+
+    // <--- ADD THIS NEW METHOD FOR USER PROGRESS --->
+    /**
+     * Get all of the user's general progress for this exercise (e.g., completion status).
+     */
+    public function progress(): MorphMany
+    {
+        return $this->morphMany(UserProgress::class, 'progressable');
     }
 
     /**

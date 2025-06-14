@@ -74,6 +74,7 @@ const router = createRouter({
       name: 'signup',
       component: () => import('../views/SignupView.vue'),
     },
+
     // Admin Routes
     {
       path: '/admin',

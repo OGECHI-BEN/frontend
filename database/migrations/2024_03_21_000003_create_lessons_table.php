@@ -11,12 +11,14 @@ return new class extends Migration
         Schema::create('lessons', function (Blueprint $table) {
             $table->id();
             $table->foreignId('language_id')->constrained()->onDelete('cascade');
-            $table->foreignId('level_id')->constrained()->onDelete('cascade');
+            $table->unsignedBigInteger('level_id');
+            $table->foreign('level_id')->references('id')->on('levels')->onDelete('cascade');
             $table->string('title');
             $table->text('content');
             $table->integer('order');
             $table->integer('estimated_time')->comment('in minutes');
             $table->string('slug')->unique();
+            $table->boolean('is_published')->default(true);
             $table->timestamps();
         });
     }
