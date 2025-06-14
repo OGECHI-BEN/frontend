@@ -27,7 +27,7 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async login(credentials) {
       try {
-        const response = await apiClient.post('/api/auth/login', credentials)
+        const response = await apiClient.post('/auth/login', credentials)
         // const response = await authService.login(credentials)
         this.token = response.data.token
         this.user = response.data.user
@@ -42,7 +42,7 @@ export const useAuthStore = defineStore('auth', {
     async register(userData) {
       try {
         // console.log('dddddddddddddddddddddddd', userData)
-        const response = await apiClient.post('/api/auth/register', userData)
+        const response = await apiClient.post('/auth/register', userData)
         // const response = await axios.post('/api/auth/register', userData)
         const { token, user } = response.data
 

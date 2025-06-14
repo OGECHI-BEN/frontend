@@ -104,7 +104,7 @@
                   disabled
                   class="h-4 w-4 text-orange focus:ring-orange border-gray-600 rounded bg-gray-700"
                 />
-                <label :for="`option-${question.id}-${index}`" class="ml-2">{{ option }}</label>
+                <label :for="`option-${question.id}-${index}`" class="ml-2">{{ option }}xxx</label>
               </div>
             </div>
             <div v-else-if="question.type === 'code'" class="mt-4">
@@ -197,7 +197,7 @@ const submitQuiz = () => {
   @apply text-white;
 }
 /* Styles for the Prose content */
-..prose h1,
+.prose h1,
 .prose h2,
 .prose h3,
 .prose h4 {

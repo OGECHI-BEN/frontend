@@ -116,7 +116,10 @@
             class="bg-gray-800 p-6 rounded-lg shadow-lg mb-4"
           >
             <h3 class="text-xl font-semibold text-white mb-2">{{ question.question_text }}</h3>
-            <div v-if="question.type === 'multiple-choice'" class="space-y-2">
+            <div v-if="question.is_completed" class="space-y-2">
+              <p>Question answered</p>
+            </div>
+            <div v-else-if="question.type === 'multiple-choice'" class="space-y-2">
               <div
                 v-for="(option, index) in question.options"
                 :key="index"
