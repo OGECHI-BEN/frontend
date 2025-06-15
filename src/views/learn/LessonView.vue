@@ -104,7 +104,7 @@
                   disabled
                   class="h-4 w-4 text-orange focus:ring-orange border-gray-600 rounded bg-gray-700"
                 />
-                <label :for="`option-${question.id}-${index}`" class="ml-2">{{ option }}xxx</label>
+                <label :for="`option-${question.id}-${index}`" class="ml-2">{{ option }}</label>
               </div>
             </div>
             <div v-else-if="question.type === 'code'" class="mt-4">

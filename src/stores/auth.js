@@ -78,7 +78,7 @@ export const useAuthStore = defineStore('auth', {
       try {
         const response = await authService.getProfile()
         this.user = response.data
-        console.log('jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj', this.user)
+        // console.log('jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj', this.user)
         this.userPoints = response.data.points || 0
         this.userAvatar = response.data.avatar
         return response

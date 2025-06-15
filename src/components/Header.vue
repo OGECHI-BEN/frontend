@@ -16,6 +16,9 @@
           <router-link to="/" class="text-gold hover:text-orange">HOME</router-link>
           <router-link to="/learn" class="text-gold hover:text-orange"> LEARN </router-link>
           <router-link to="/practice" class="text-gold hover:text-orange"> PRACTICE </router-link>
+          <router-link to="/leaderboard" class="text-gold hover:text-orange">
+            LEADERBOARD
+          </router-link>
 
           <!-- User Menu -->
           <div v-if="authStore.isAuthenticated" class="flex items-center space-x-4">
@@ -107,6 +110,13 @@
           @click="isMobileMenuOpen = false"
         >
           Practice
+        </router-link>
+        <router-link
+          to="/leaderboard"
+          class="block text-gray-600 hover:text-indigo-600"
+          @click="isMobileMenuOpen = false"
+        >
+          leaderboard
         </router-link>
 
         <!-- Mobile User Menu -->
